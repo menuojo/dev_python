@@ -44,7 +44,7 @@ fig1 = plt.figure()
 
 l, = plt.plot([], [], 'b-')
 plt.xlim(0, 120)
-plt.ylim(-10, 10)
+plt.ylim(-4, 4)
 plt.xlabel('x')
 plt.ylabel('y')
 plt.title('test')
