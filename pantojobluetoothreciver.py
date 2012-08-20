@@ -67,7 +67,7 @@ class PantojoRealDataPipe:
     
     def apply(self, input_data):
         data = input_data
-        funs = [_apply_normalization, _apply_calibration, _apply_data]
+        funs = [self._apply_normalization, self._apply_calibration, self._apply_data]
         for fun in funs:
             done, data = fun(data)
             if done: 
