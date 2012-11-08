@@ -1,5 +1,4 @@
 from collections import deque
-from datetime import datetime
 import os
 import random
 import signal
@@ -22,14 +21,17 @@ lock = Lock()
 
 roulette = [quiet, quiet, move_left, move_right]
 
+
 def newdata():
     global timer2
     timer2 = Timer(1.0 / (data_freq / len(quiet)), newdata)
     timer2.start()
-    new_data = map(lambda x: x + random.uniform(-std_dev, std_dev), random.choice(roulette))
+    new_data = map(lambda x: x + random.uniform(-std_dev, std_dev),
+                   random.choice(roulette))
     lock.acquire()
     data.extend(new_data)
     lock.release()
+
 
 def dataout():
     global timer1
@@ -38,18 +40,18 @@ def dataout():
     lock.acquire()
     print "{:+.3f}".format(data.popleft())
     lock.release()
-    
+
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
 timer1 = Timer(0.1, dataout)
 timer2 = Timer(0.2, newdata)
 
+
 def handler(signum, frame):
     timer1.cancel()
     timer2.cancel()
-    
+
 signal.signal(signal.SIGINT, handler)
 
 timer1.start()
 timer2.start()
-    

@@ -1,5 +1,4 @@
 from select import select
-import signal
 import sys
 from threading import Lock, Thread
 
@@ -9,6 +8,7 @@ import matplotlib.animation as animation
 data = []
 
 lock = Lock()
+
 
 def newdata():
     finish = False
@@ -22,10 +22,11 @@ def newdata():
                 line = line[:-1]
                 lock.acquire()
                 data.append(float(line))
-                lock.release()               
+                lock.release()
 
 thread = Thread(target=newdata)
 thread.start()
+
 
 def update_line(num, data, line):
     lock.acquire()
@@ -52,4 +53,3 @@ line_ani = animation.FuncAnimation(fig1, update_line, 10, fargs=(data, l),
                                    interval=50, blit=True)
 
 plt.show()
-
