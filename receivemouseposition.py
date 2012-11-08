@@ -1,51 +1,47 @@
 from bluetooth import *
-import sys
-
 from pymouse import PyMouse
 
+server_sock=BluetoothSocket(RFCOMM)
+server_sock.bind(("", PORT_ANY))
+server_sock.listen(1)
 
-class MouseLogger:
+port = server_sock.getsockname()[1]
 
-    def __init__(self):
-        self.mouse = PyMouse()
+advertise_service(server_sock, "MenuOjoServer",
+                  service_classes = [SERIAL_PORT_CLASS],
+                  profiles = [SERIAL_PORT_PROFILE])
 
-    def recv(self):
-        return self.mouse.position()
+print "Waiting for connection on RFCOMM channel %d" % port
 
-addr = None
+client_sock, client_info = server_sock.accept()
+print "Accepted connection from ", client_info
 
-if len(sys.argv) < 2:
-    print "no device specified.  Searching all nearby bluetooth devices for"
-    print "the MenuOjoServer service"
-else:
-    addr = sys.argv[1]
-    print "Searching for MenuOjoServer on %s" % addr
+DATA_PATTERN = r"^x=(?P<data_x>-?0\.\d{3}),y=(?P<data_y>-?0\.\d{3})$"
+dataPattern = re.compile(DATA_PATTERN, re.VERBOSE)
 
-# search for the SampleServer service
-service_matches = find_service(name="MenuOjoServer", address=addr)
+mouse = PyMouse()        
+(x_max,y_max) = mouse.screen_size()
 
-if len(service_matches) == 0:
-    print "couldn't find the SampleServer service =("
-    sys.exit(0)
+try:
+    while True:
+        input_data = client_sock.recv(1024)
+        matched = dataPattern.match(input_data)
+        if matched:
+            data = matched.groupdict()
+            data_x = "{}".format(data["data_x"])
+            data_y = "{}".format(data["data_y"])
+            (x,y) = mouse.position()
+            data_x = float(data_x)
+            data_y = float(data_y)
+            valor_x = x * (1 + data_x )
+            valor_y = y * (1 + data_y)
+            mouse.move(valor_x,valor_y)		
+        print "received [%s]" % data
+except IOError:
+    pass
 
-first_match = service_matches[0]
-port = first_match["port"]
-name = first_match["name"]
-host = first_match["host"]
+print "disconnected"
 
-print "connecting to \"%s\" on %s" % (name, host)
-
-# Create the client socket
-sock = BluetoothSocket(RFCOMM)
-sock.connect((host, port))
-
-print "connected.  type stuff"
-logger = MouseLogger()
-(x_ant, y_ant) = logger.recv()
-while True:
-    (x, y) = logger.recv()
-    if (x != x_ant or y != y_ant):
-        sock.send('{}'.format(x))
-    (x_ant, y_ant) = (x, y)
-
-sock.close()
+client_sock.close()
+server_sock.close()
+print "all done"
