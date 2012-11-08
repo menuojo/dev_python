@@ -1,31 +1,55 @@
 from bluetooth import *
+import sys
 
-server_sock=BluetoothSocket(RFCOMM)
-server_sock.bind(("", PORT_ANY))
-server_sock.listen(1)
+from pymouse import PyMouse
 
-port = server_sock.getsockname()[1]
 
-advertise_service(server_sock, "MenuOjoServer",
-                  service_classes = [SERIAL_PORT_CLASS],
-                  profiles = [SERIAL_PORT_PROFILE])
+class MouseLogger:
 
-print "Waiting for connection on RFCOMM channel %d" % port
+    def __init__(self):
+        self.mouse = PyMouse()
 
-client_sock, client_info = server_sock.accept()
-print "Accepted connection from ", client_info
+    def recv(self):
+        return self.mouse.position()
 
-try:
-    while True:
-        data = client_sock.recv(1024)
-        if len(data) == 0:
-            break
-        print "received [%s]" % data
-except IOError:
-    pass
+addr = None
 
-print "disconnected"
+if len(sys.argv) < 2:
+    print "no device specified.  Searching all nearby bluetooth devices for"
+    print "the MenuOjoServer service"
+else:
+    addr = sys.argv[1]
+    print "Searching for MenuOjoServer on %s" % addr
 
-client_sock.close()
-server_sock.close()
-print "all done"
+# search for the SampleServer service
+service_matches = find_service(name="MenuOjoServer", address=addr)
+
+if len(service_matches) == 0:
+    print "couldn't find the SampleServer service =("
+    sys.exit(0)
+
+first_match = service_matches[0]
+port = first_match["port"]
+name = first_match["name"]
+host = first_match["host"]
+
+print "connecting to \"%s\" on %s" % (name, host)
+
+# Create the client socket
+sock = BluetoothSocket(RFCOMM)
+sock.connect((host, port))
+
+print "connected.  type stuff"
+logger = MouseLogger()
+(x_max, y_max) = logger.screen_size()
+(x_ant, y_ant) = logger.recv()
+while True:
+    (x, y) = logger.recv()
+    if (x != x_ant or y != y_ant):
+        x_send = (x - x_ant) / x_max
+        y_send = (y - y_ant) / y_max
+        sock.send('x={},y={}'.format(x_send, y_send))
+        print 'x={},y={}'.format(x_send, y_send)
+        (x_ant, y_ant) = (x, y)
+
+sock.close()
