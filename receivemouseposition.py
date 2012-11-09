@@ -19,7 +19,7 @@ print "Accepted connection from ", client_info
 DATA_PATTERN = r"^x=(?P<data_x>-?0\.\d+),y=(?P<data_y>-?0\.\d+)$"
 dataPattern = re.compile(DATA_PATTERN, re.VERBOSE)
 
-mouse = PyMouse()        
+mouse = PyMouse()
 (x_max,y_max) = mouse.screen_size()
 
 try:
@@ -36,6 +36,7 @@ try:
             valor_x = int(x * (1 + data_x ))
             valor_y = int(y * (1 + data_y))
             mouse.move(valor_x,valor_y)		
+
         print "received [%s]" % data
 except IOError:
     pass
