@@ -16,7 +16,7 @@ print "Waiting for connection on RFCOMM channel %d" % port
 client_sock, client_info = server_sock.accept()
 print "Accepted connection from ", client_info
 
-DATA_PATTERN = r"^x=(?P<data_x>-?0\.\d{3}),y=(?P<data_y>-?0\.\d{3})$"
+DATA_PATTERN = r"^x=(?P<data_x>-?0\.\d+),y=(?P<data_y>-?0\.\d+)$"
 dataPattern = re.compile(DATA_PATTERN, re.VERBOSE)
 
 mouse = PyMouse()        
@@ -33,8 +33,8 @@ try:
             (x,y) = mouse.position()
             data_x = float(data_x)
             data_y = float(data_y)
-            valor_x = x * (1 + data_x )
-            valor_y = y * (1 + data_y)
+            valor_x = int(x * (1 + data_x ))
+            valor_y = int(y * (1 + data_y))
             mouse.move(valor_x,valor_y)		
         print "received [%s]" % data
 except IOError:
