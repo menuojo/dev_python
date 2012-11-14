@@ -37,11 +37,12 @@ print "connecting to \"%s\" on %s" % (name, host)
 
 # Create the client socket
 sock = BluetoothSocket(RFCOMM)
+import ipdb; ipdb.set_trace()
 sock.connect((host, port))
 
-print "connected.  type stuff"
+print "connected. type stuff"
 logger = MouseLogger()
-(x_max, y_max) = logger.screen_size()
+(x_max, y_max) = logger.mouse.screen_size()
 (x_ant, y_ant) = logger.recv()
 while True:
     (x, y) = logger.recv()
