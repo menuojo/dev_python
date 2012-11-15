@@ -19,7 +19,7 @@ else:
 
 # search for the SampleServer service
 uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
-service_matches = find_service(uuid=uuid, address=addr)
+service_matches = find_service(name="SampleServer", address=addr)
 
 if len(service_matches) == 0:
     print "couldn't find the SampleServer service =("
