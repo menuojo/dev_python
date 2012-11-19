@@ -18,7 +18,6 @@ else:
     print "Searching for SampleServer on %s" % addr
 
 # search for the SampleServer service
-uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
 service_matches = find_service(name="SampleServer", address=addr)
 
 if len(service_matches) == 0:
