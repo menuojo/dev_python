@@ -35,8 +35,8 @@ try:
             (x, y) = mouse.position()
             data_x = float(data_x)
             data_y = float(data_y)
-            valor_x = int(x * (1 + data_x))
-            valor_y = int(y * (1 + data_y))
+            valor_x = int(round(data_x * x_max))
+            valor_y = int(round(data_y * y_max))
             mouse.move(valor_x, valor_y)
 
         print "not matched: [%s]" % input_data
