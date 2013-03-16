@@ -4,6 +4,7 @@ import os
 import sys
 from pymouse import PyMouse
 
+
 class PantojoBluetoothReceiver:
 
     PANTOJO_BLUETOOTH_PORT = 3
@@ -25,6 +26,7 @@ class PantojoBluetoothReceiver:
         self.client_socket.close()
         self.server_socket.close()
 
+
 class PantojoRealDataPipe:
 
     NORMALIZATION_PATTERN = r"""n(?P<packet>\d{3})
@@ -38,6 +40,7 @@ class PantojoRealDataPipe:
     DATA_PATTERN = r"""d(?P<packet>\d{3})
                        (?P<real_data>[+-]\d\.\d{4})
                        (?P<processed_data>[+-]\d{2})"""
+
     def __init__(self):
         self.normalization = re.compile(self.NORMALIZATION_PATTERN, re.VERBOSE)
         self.calibration = re.compile(self.CALIBRATION_PATTERN, re.VERBOSE)
@@ -63,18 +66,20 @@ class PantojoRealDataPipe:
         matched = self.data.match(input_data)
         if matched:
             data = matched.groupdict()
-        return True, "{}".format(data["processed_data"])
+            return True, "{}".format(data["processed_data"])
         else:
             return False, input_data
 
     def apply(self, input_data):
         data = input_data
-        funs = [self._apply_normalization, self._apply_calibration, self._apply_data]
+        funs = [self._apply_normalization, self._apply_calibration,
+                self._apply_data]
         for fun in funs:
             done, data = fun(data)
-            if done: 
+            if done:
                 break
         return data
+
 
 class MenuOjoData:
 
@@ -84,7 +89,7 @@ class MenuOjoData:
         self.driver = PantojoBluetoothReceiver()
         self.pipes = [PantojoRealDataPipe()]
         self.mouse = PyMouse()
-        (self.x_max,self.y_max) = self.mouse.screen_size()
+        (self.x_max, self.y_max) = self.mouse.screen_size()
         self.degree = re.compile(self.DEGREEE_PATTERN, re.VERBOSE)
 
     def open(self):
@@ -97,13 +102,13 @@ class MenuOjoData:
         matched = self.degree.match(data)
         if matched:
             valor = int(data)
-        (x,y) = self.mouse.position()
+        (x, y) = self.mouse.position()
         if (valor != 0):
             #asumo que se mueve de a 15
-            mov = (x_max / 7) * (valor / 15) + x
-            self.mouse.move(mov,y)
+            mov = (self.x_max / 7) * (valor / 15) + x
+            self.mouse.move(mov, y)
         else:
-            self.mouse.move(x_max/2,y)
+            self.mouse.move(self.x_max / 2, y)
         return data
 
     def close(self):
