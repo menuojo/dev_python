@@ -1,4 +1,4 @@
-class EOGDeviceInterface:
+class EOGDevice:
 
     # interface
     def get_data(self):
