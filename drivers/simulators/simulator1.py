@@ -1,5 +1,6 @@
-from datetime import datetime, time
+from datetime import datetime
 import random
+import time
 
 from simulator import Simulator
 
@@ -16,7 +17,7 @@ class Simulator1(Simulator):
         self.timestamp = datetime.now()
         self.package = 0
 
-    def get_data(self):
+    def _do_get_data(self):
         delta = datetime.now() - self.timestamp
         if delta.total_seconds() <= 1 / self.data_freq:
             time.sleep(1 / self.data_freq - delta.total_seconds())
@@ -25,5 +26,5 @@ class Simulator1(Simulator):
             new_data = random.choice(self.values)
         self.last_data = new_data
         self.package = (self.package + 1) % 256
-        return 'd{:0<3d}{:0<+.4f}{:0<+3d}'.format(self.package,
+        return 'd{:0>3d}{:0<+.4f}{:0<+3d}'.format(self.package,
                                                   random.random(), new_data)

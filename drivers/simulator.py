@@ -1,14 +1,13 @@
+import importlib
+
 from drivers import Driver
 
 
 class SimulatorDriver(Driver):
 
     def __init__(self, sim_name):
-        module = importlib.import_module('simulator')
-        if hasattr(module, sim_name):
-            self.simulator = getattr(module, sim_name)()
-        else:
-            raise ImportError("Unkown simulator. Try to import another")
+        module = importlib.import_module('drivers.simulators.' + sim_name)
+        self.simulator = getattr(module, sim_name.title())()
         self.is_open = False
 
     def _do_open(self):
