@@ -1,3 +1,12 @@
+import logging
+import logging.config
+
+import os
+
+logging.config.fileConfig(os.path.join(os.path.dirname(__file__), 'log.conf'))
+logger = logging.getLogger('menuojo.driver')
+
+
 class Driver:
 
     # interface
@@ -5,7 +14,9 @@ class Driver:
         self._do_open()
 
     def recv(self):
-        return self._do_recv()
+        data = self._do_recv()
+        logger.info(data)
+        return data
 
     def close(self):
         self._do_close()
